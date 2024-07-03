@@ -1,0 +1,35 @@
+name: Deploy Laravel to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # La rama desde la que deseas desplegar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'  # La versión de PHP que necesites
+        extensions: mbstring, bcmath, xml, curl, mysqli
+
+    - name: Install Composer Dependencies
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: Run Laravel Artisan Commands
+      run: php artisan optimize
+
+    - name: Build Assets
+      run: npm install && npm run production  # Si estás usando NPM para compilar assets
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public  # La carpeta que contiene los archivos estáticos generados
